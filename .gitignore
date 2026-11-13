@@ -1,0 +1,28 @@
+# APIキーなどの秘密情報（絶対にコミットしない）
+Secrets.xcconfig
+
+# macOS
+.DS_Store
+
+# Xcode のユーザー固有ファイル
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# ビルド成果物
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# その他
+*.moved-aside
+*.hmap
+timeline.xctimeline
+playground.xcworkspace
