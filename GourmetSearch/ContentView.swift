@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  GourmetSearch
-//
-//  Created by saito manaka on 2026/11/13.
-//
-
 import SwiftUI
 
 struct ContentView: View {
