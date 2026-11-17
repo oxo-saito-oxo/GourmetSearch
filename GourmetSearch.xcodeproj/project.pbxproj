@@ -22,11 +22,22 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		6A43478930A996930002DA10 /* Exceptions for "GourmetSearch" folder in "Copy Bundle Resources" phase from "GourmetSearch" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 6A43475C30A750EB0002DA10 /* Resources */;
+			membershipExceptions = (
+				Services/LocationManager.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		6A43476030A750EB0002DA10 /* GourmetSearch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				6A43477030A755500002DA10 /* Exceptions for "GourmetSearch" folder in "GourmetSearch" target */,
+				6A43478930A996930002DA10 /* Exceptions for "GourmetSearch" folder in "Copy Bundle Resources" phase from "GourmetSearch" target */,
 			);
 			path = GourmetSearch;
 			sourceTree = "<group>";
