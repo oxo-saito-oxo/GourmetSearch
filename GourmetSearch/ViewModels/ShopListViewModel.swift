@@ -19,7 +19,7 @@ final class ShopListViewModel {
     /// 距離の計算に使う
     private(set) var currentLocation: CLLocation?
 
-    private let condition: SearchCondition
+    let condition: SearchCondition
     private let searcher: ShopSearching
     private let locationManager: LocationManager
 
@@ -53,6 +53,17 @@ final class ShopListViewModel {
             state = shops.isEmpty ? .empty : .loaded
         } catch {
             state = .error(error.localizedDescription)
+        }
+    }
+    /// 現在地からお店までの距離を「120m」「1.2km」の形で返す
+    func distanceText(for shop: Shop) -> String? {
+        guard let currentLocation else { return nil }
+        let shopLocation = CLLocation(latitude: shop.lat, longitude: shop.lng)
+        let meters = currentLocation.distance(from: shopLocation)
+        if meters < 1000 {
+            return "\(Int((meters / 10).rounded()) * 10)m"
+        } else {
+            return String(format: "%.1fkm", meters / 1000)
         }
     }
 }

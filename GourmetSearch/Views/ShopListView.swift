@@ -17,17 +17,43 @@ struct ShopListView: View {
             case .error(let message):
                 Text(message)
             case .loaded:
-                List(viewModel.shops) { shop in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(shop.name).bold()
-                        Text(shop.access).font(.caption)
-                    }
-                }
+                shopList
             }
         }
-        .navigationTitle("検索結果 \(viewModel.totalCount)件")
+        .foregroundStyle(Color.appBrown)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.appCream)
+        .navigationTitle("検索結果")
+        .navigationBarTitleDisplayMode(.inline)
         .task {
             await viewModel.load()
+        }
+    }
+
+    private var shopList: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 16) {
+                summary
+                ForEach(viewModel.shops) { shop in
+                    ShopCardView(shop: shop, distanceText: viewModel.distanceText(for: shop))
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+        }
+    }
+
+    /// 「1km以内」「1,097件」の表示
+    private var summary: some View {
+        HStack(spacing: 8) {
+            Label("\(viewModel.condition.range.label)以内", systemImage: "mappin.and.ellipse")
+                .font(.footnote.bold())
+                .padding(.horizontal, 12)
+                .frame(height: 28)
+                .background(Color.appHoneyLight, in: Capsule())
+            Text("\(viewModel.totalCount.formatted())件")
+                .font(.subheadline)
+                .foregroundStyle(Color.appSubText)
         }
     }
 }
