@@ -37,6 +37,20 @@ struct ShopListView: View {
                 ForEach(viewModel.shops) { shop in
                     ShopCardView(shop: shop, distanceText: viewModel.distanceText(for: shop))
                 }
+
+                if viewModel.hasNextPage {
+                    HStack(spacing: 10) {
+                        ProgressView()
+                        Text("次のページを読み込み中…")
+                            .font(.footnote)
+                            .foregroundStyle(Color.appSubText)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .task(id: viewModel.shops.count) {
+                        await viewModel.loadMore()
+                    }
+                }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
