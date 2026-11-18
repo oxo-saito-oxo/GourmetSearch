@@ -4,6 +4,7 @@ struct SearchView: View {
     @State private var rangeIndex: Double = 2
     @State private var selectedGenre = GenreOption.all[0]
     @State private var selectedFacilities: Set<Facility> = []
+    @State private var searchCondition: SearchCondition?
 
     private var selectedRange: SearchRange {
         SearchRange.allCases[Int(rangeIndex)]
@@ -23,6 +24,9 @@ struct SearchView: View {
                 .padding(.top, 8)
             }
             .background(Color.appCream)
+            .navigationDestination(item: $searchCondition) { condition in
+                ShopListView(condition: condition)
+            }
             .safeAreaInset(edge: .bottom) {
                 searchButton
             }
@@ -157,7 +161,11 @@ struct SearchView: View {
     // MARK: - 検索ボタン
     private var searchButton: some View {
         Button {
-            print("検索ボタンが押された")
+            searchCondition = SearchCondition(
+                range: selectedRange,
+                genre: selectedGenre,
+                facilities: selectedFacilities
+            )
         } label: {
             Label("この周辺で探す", systemImage: "magnifyingglass")
                 .font(.headline)
