@@ -18,6 +18,12 @@ final class ShopListViewModel {
     private(set) var totalCount = 0
     /// 距離の計算に使う
     private(set) var currentLocation: CLLocation?
+    /// 次のページがあるか
+    private(set) var hasNextPage = false
+    /// 次のページを読み込み中か
+    private(set) var isLoadingMore = false
+    /// 今どのページまで読み込んだか
+    private var currentPage = 1
 
     let condition: SearchCondition
     private let searcher: ShopSearching
@@ -50,11 +56,39 @@ final class ShopListViewModel {
             )
             shops = results.shop
             totalCount = results.resultsAvailable
+            currentPage = 1
+            hasNextPage = results.hasNextPage
             state = shops.isEmpty ? .empty : .loaded
         } catch {
             state = .error(error.localizedDescription)
         }
     }
+
+    /// 次のページを読み込んで、一覧の後ろに足す
+    func loadMore() async {
+        guard hasNextPage, !isLoadingMore, let location = currentLocation else { return }
+        isLoadingMore = true
+        defer { isLoadingMore = false }
+
+        do {
+            let results = try await searcher.searchShops(
+                latitude: location.coordinate.latitude,
+                longitude: location.coordinate.longitude,
+                range: condition.range,
+                page: currentPage + 1,
+                genreCode: condition.genre.code,
+                facilities: condition.facilities
+            )
+            currentPage += 1
+            let existingIDs = Set(shops.map(\.id))
+            shops.append(contentsOf: results.shop.filter { !existingIDs.contains($0.id) })
+            hasNextPage = results.hasNextPage
+        } catch {
+            // 追加の読み込みに失敗しても、表示中の一覧は消さない
+            // （もう一度下までスクロールすれば再挑戦される）
+        }
+    }
+    
     /// 現在地からお店までの距離を「120m」「1.2km」の形で返す
     func distanceText(for shop: Shop) -> String? {
         guard let currentLocation else { return nil }
