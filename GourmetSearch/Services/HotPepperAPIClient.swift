@@ -56,7 +56,8 @@ protocol ShopSearching {
         longitude: Double,
         range: SearchRange,
         page: Int,
-        genreCode: String?
+        genreCode: String?,
+        facilities: Set<Facility>
     ) async throws -> SearchResults
 
     /// IDを指定してお店を1件取得する
@@ -84,7 +85,7 @@ struct HotPepperAPIClient: ShopSearching {
         longitude: Double,
         range: SearchRange,
         page: Int = 1,
-        genreCode: String? = nil
+        genreCode: String? = nil,        facilities: Set<Facility> = []
     ) async throws -> SearchResults {
         // page（1, 2, 3...）を start（1, 21, 41...）に変換する
         let start = (page - 1) * Self.pageSize + 1
@@ -98,6 +99,10 @@ struct HotPepperAPIClient: ShopSearching {
         ]
         if let genreCode {
             queryItems.append(URLQueryItem(name: "genre", value: genreCode))
+        }
+
+        for facility in facilities.sorted(by: { $0.rawValue < $1.rawValue }) {
+            queryItems.append(URLQueryItem(name: facility.rawValue, value: "1"))
         }
 
         return try await request(queryItems: queryItems)
