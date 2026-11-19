@@ -4,14 +4,14 @@ struct SearchView: View {
     @State private var rangeIndex: Double = 2
     @State private var selectedGenre = GenreOption.all[0]
     @State private var selectedFacilities: Set<Facility> = []
-    @State private var searchCondition: SearchCondition?
+    @State private var path = NavigationPath()
 
     private var selectedRange: SearchRange {
         SearchRange.allCases[Int(rangeIndex)]
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     header
@@ -24,7 +24,7 @@ struct SearchView: View {
                 .padding(.top, 8)
             }
             .background(Color.appCream)
-            .navigationDestination(item: $searchCondition) { condition in
+            .navigationDestination(for: SearchCondition.self) { condition in
                 ShopListView(condition: condition)
             }
             .safeAreaInset(edge: .bottom) {
@@ -161,10 +161,12 @@ struct SearchView: View {
     // MARK: - 検索ボタン
     private var searchButton: some View {
         Button {
-            searchCondition = SearchCondition(
-                range: selectedRange,
-                genre: selectedGenre,
-                facilities: selectedFacilities
+            path.append(
+                SearchCondition(
+                    range: selectedRange,
+                    genre: selectedGenre,
+                    facilities: selectedFacilities
+                )
             )
         } label: {
             Label("この周辺で探す", systemImage: "magnifyingglass")

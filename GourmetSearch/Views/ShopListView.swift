@@ -25,6 +25,9 @@ struct ShopListView: View {
         .background(Color.appCream)
         .navigationTitle("検索結果")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(for: Shop.self) { shop in
+            ShopDetailView(shop: shop, distanceText: viewModel.distanceText(for: shop))
+        }
         .task {
             await viewModel.load()
         }
@@ -35,7 +38,10 @@ struct ShopListView: View {
             LazyVStack(alignment: .leading, spacing: 16) {
                 summary
                 ForEach(viewModel.shops) { shop in
-                    ShopCardView(shop: shop, distanceText: viewModel.distanceText(for: shop))
+                    NavigationLink(value: shop) {
+                        ShopCardView(shop: shop, distanceText: viewModel.distanceText(for: shop))
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 if viewModel.hasNextPage {
