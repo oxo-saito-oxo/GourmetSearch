@@ -10,7 +10,10 @@ struct ShopDetailView: View {
                 heroPhoto
                 VStack(alignment: .leading, spacing: 24) {
                     titleSection
+                    actionButtons
                     infoCard
+                    facilitySection
+                    credit
                 }
                 .padding(EdgeInsets(top: 32, leading: 20, bottom: 24, trailing: 20))
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -42,6 +45,90 @@ struct ShopDetailView: View {
                 }
             }
             .clipped()
+    }
+
+    // MARK: - ボタン（経路・予約/電話・共有）
+    private var actionButtons: some View {
+        HStack(spacing: 10) {
+            if let routeURL {
+                Link(destination: routeURL) {
+                    Label("経路を見る", systemImage: "location.north.line")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                        .background(Color.appBrown, in: RoundedRectangle(cornerRadius: 14))
+                }
+            }
+            if let pageURL = shop.pageURL {
+                Link(destination: pageURL) {
+                    HStack(spacing: 6) {
+                        Text("予約・電話")
+                        Image(systemName: "arrow.up.right.square")
+                    }
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Color.appBrown)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(.white, in: RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.appBrown, lineWidth: 1.5))
+                }
+
+                ShareLink(item: pageURL, message: Text(shop.name)) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.headline)
+                        .foregroundStyle(Color.appBrown)
+                        .frame(width: 52, height: 52)
+                        .background(.white, in: RoundedRectangle(cornerRadius: 14))
+                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.appBorder, lineWidth: 1.5))
+                }
+                .accessibilityLabel("共有")
+            }
+        }
+    }
+
+    /// マップアプリで、現在地からお店までの徒歩の経路を開くURL
+    private var routeURL: URL? {
+        URL(string: "https://maps.apple.com/?daddr=\(shop.lat),\(shop.lng)&dirflg=w")
+    }
+
+    // MARK: - 設備・サービス
+    private var facilitySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("設備・サービス")
+                .font(.headline)
+                .foregroundStyle(Color.appBrown)
+            HStack(spacing: 0) {
+                ForEach(Facility.allCases) { facility in
+                    let available = facility.isAvailable(at: shop)
+                    VStack(spacing: 6) {
+                        Image(systemName: available ? "checkmark" : "minus")
+                            .font(.caption.bold())
+                            .foregroundStyle(available ? Color.appBrown : Color.appSubText)
+                            .frame(width: 28, height: 28)
+                            .background(available ? Color.appHoneyLight : Color.appCream, in: Circle())
+                        Text(facility.shortLabel)
+                            .font(.caption)
+                            .fontWeight(available ? .bold : .regular)
+                            .foregroundStyle(available ? Color.appBrown : Color.appSubText)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(facility.shortLabel) \(available ? "あり" : "なし")")
+                }
+            }
+            .padding(.vertical, 12)
+            .background(.white, in: RoundedRectangle(cornerRadius: 16))
+            .shadow(color: Color.appBrown.opacity(0.06), radius: 10, y: 2)
+        }
+    }
+
+    // MARK: - APIのクレジット表示
+    private var credit: some View {
+        Text("Powered by ホットペッパーグルメ Webサービス")
+            .font(.caption2)
+            .foregroundStyle(Color.appSubText)
+            .frame(maxWidth: .infinity)
     }
 
     // MARK: - 基本情報
