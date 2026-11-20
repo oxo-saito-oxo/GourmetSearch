@@ -26,4 +26,9 @@ enum SearchRange: Int, CaseIterable, Identifiable {
     var label: String {
         meters < 1000 ? "\(meters)m" : "\(meters / 1000)km"
     }
+
+    /// 1段階広い距離。3kmのときは nil
+    var next: SearchRange? {
+        SearchRange(rawValue: rawValue + 1)
+    }
 }

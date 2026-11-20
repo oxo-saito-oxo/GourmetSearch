@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ShopListView: View {
     @State private var viewModel: ShopListViewModel
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
 
     init(condition: SearchCondition) {
         _viewModel = State(initialValue: ShopListViewModel(condition: condition))
@@ -12,12 +14,14 @@ struct ShopListView: View {
             switch viewModel.state {
             case .loading:
                 ProgressView("お店を探しています…")
-            case .empty:
-                Text("条件に合うお店が見つかりませんでした")
-            case .error(let message):
-                Text(message)
             case .loaded:
                 shopList
+            case .empty:
+                emptyView
+            case .error(let message):
+                errorView(message: message)
+            case .locationDenied:
+                locationDeniedView
             }
         }
         .foregroundStyle(Color.appBrown)
@@ -30,6 +34,63 @@ struct ShopListView: View {
         }
         .task {
             await viewModel.load()
+        }
+    }
+
+    // MARK: - 0件のとき
+    private var emptyView: some View {
+        ContentUnavailableView {
+            Label("条件に合うお店が見つかりませんでした", systemImage: "fork.knife")
+        } description: {
+            Text(viewModel.condition.range.next == nil
+                 ? "ジャンルやこだわり条件を変えると、見つかるかもしれません。"
+                 : "距離を広げるか、こだわり条件を減らすと見つかるかもしれません。")
+        } actions: {
+            VStack(spacing: 10) {
+                if let next = viewModel.condition.range.next {
+                    Button("\(next.label)以内に広げて探す") {
+                        Task { await viewModel.widenRange() }
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                }
+                Button("条件を変える") {
+                    dismiss()
+                }
+                .buttonStyle(SecondaryButtonStyle())
+            }
+            .frame(width: 280)
+        }
+    }
+
+    // MARK: - 位置情報が拒否されているとき
+    private var locationDeniedView: some View {
+        ContentUnavailableView {
+            Label("位置情報がオフになっています", systemImage: "location.slash")
+        } description: {
+            Text("近くのお店を探すには、設定アプリで位置情報の利用を許可してください。")
+        } actions: {
+            Button("設定を開く") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    openURL(url)
+                }
+            }
+            .buttonStyle(PrimaryButtonStyle())
+            .frame(width: 280)
+        }
+    }
+
+    // MARK: - 通信エラーなど
+    private func errorView(message: String) -> some View {
+        ContentUnavailableView {
+            Label("うまく読み込めませんでした", systemImage: "wifi.exclamationmark")
+        } description: {
+            Text(message)
+        } actions: {
+            Button("もう一度試す") {
+                Task { await viewModel.load() }
+            }
+            .buttonStyle(PrimaryButtonStyle())
+            .frame(width: 280)
         }
     }
 
