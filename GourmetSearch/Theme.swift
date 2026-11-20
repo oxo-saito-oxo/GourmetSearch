@@ -14,3 +14,30 @@ extension Color {
     /// 枠線
     static let appBorder = Color(red: 0xE3 / 255, green: 0xD2 / 255, blue: 0xBA / 255)
 }
+
+/// こげ茶のメインボタン
+struct PrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.bold())
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(Color.appBrown, in: RoundedRectangle(cornerRadius: 14))
+            .opacity(configuration.isPressed ? 0.8 : 1)
+    }
+}
+
+/// 白地に枠線のサブボタン
+struct SecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.bold())
+            .foregroundStyle(Color.appBrown)
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(.white, in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.appBrown, lineWidth: 1.5))
+            .opacity(configuration.isPressed ? 0.8 : 1)
+    }
+}

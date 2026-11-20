@@ -11,6 +11,7 @@ final class ShopListViewModel {
         case loaded
         case empty
         case error(String)
+        case locationDenied
     }
 
     private(set) var state: State = .loading
@@ -25,7 +26,7 @@ final class ShopListViewModel {
     /// 今どのページまで読み込んだか
     private var currentPage = 1
 
-    let condition: SearchCondition
+    private(set) var condition: SearchCondition
     private let searcher: ShopSearching
     private let locationManager: LocationManager
 
@@ -59,6 +60,10 @@ final class ShopListViewModel {
             currentPage = 1
             hasNextPage = results.hasNextPage
             state = shops.isEmpty ? .empty : .loaded
+        } catch LocationError.denied {
+            state = .locationDenied
+        } catch is URLError {
+            state = .error("インターネットに接続できませんでした。通信環境を確認して、もう一度お試しください。")
         } catch {
             state = .error(error.localizedDescription)
         }
@@ -88,7 +93,18 @@ final class ShopListViewModel {
             // （もう一度下までスクロールすれば再挑戦される）
         }
     }
-    
+
+    /// 距離を1段階広げて検索し直す
+    func widenRange() async {
+        guard let next = condition.range.next else { return }
+        condition = SearchCondition(
+            range: next,
+            genre: condition.genre,
+            facilities: condition.facilities
+        )
+        await load()
+    }
+
     /// 現在地からお店までの距離を「120m」「1.2km」の形で返す
     func distanceText(for shop: Shop) -> String? {
         guard let currentLocation else { return nil }
