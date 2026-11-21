@@ -36,7 +36,7 @@ struct SearchView: View {
     // MARK: - タイトル
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("[アプリ名]")
+            Text("ぴんとごはん")
                 .font(.footnote.bold())
                 .foregroundStyle(Color.appSubText)
             Text("近くのお店を探す")
